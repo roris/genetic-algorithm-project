@@ -1,0 +1,168 @@
+<template>
+  <require from="./styles.css"></require>
+
+  <nav class="navbar navbar-dark bg-primary fixed-top flex-md-nowrap p-0 shadow">
+    <a class="navbar-brand col-sm-3 col-md-2 mr-0" href="#">Budgerigar Breeding Simulator</a>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <nav class="col-md-2 d-none d-md-block sidebar">
+        <div class="card">
+          <div class="card-header">
+            <h4>Parameters</h4>
+          </div>
+          <form class="card-body" submit.trigger="generateClicked()">
+
+            <div class="form-group row">
+              <div class="col-sm">Maximum population</div>
+              <div class="col-sm">
+                <input class="form-control" type="number" value.bind="parameters.maximum" min="10"
+                  disabled.bind="isRunning">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-sm">Initial population</div>
+              <div class="col-sm">
+                <input class="form-control" type="number" value.bind="parameters.initial" min="2"
+                  max="${parameters.maximum}" disabled.bind="isRunning">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-sm">Breeding Pair Limit</div>
+              <div class="col-sm">
+                <input class="form-control" type="number" value.bind="parameters.breeders" min="1" max="${pairLimit}"
+                  disabled.bind="isRunning">
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <div class="col-sm">Maximum Generations</div>
+              <div class="col-sm">
+                <input class="form-control" type="number" value.bind="parameters.generations" min="1"
+                  disabled.bind="isRunning">
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-sm">
+                <button class="btn btn-block btn-primary mt-sm-2" type="submit"
+                  disabled.bind="isRunning">Generate</button>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h4>Status</h4>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-sm">Generation:</div>
+              <div class="col-sm">${generation}</div>
+            </div>
+            <div class="row">
+              <div class="col-sm">Fitness:</div>
+              <div class="col-sm">${fitness}</div>
+            </div>
+            <div class="row">
+              <div class="col-sm">Population:</div>
+              <div class="col-sm">${males.length + females.length}</div>
+            </div>
+            <div class="row">
+              <div class="col-sm">Males:</div>
+              <div class="col-sm">${males.length}</div>
+            </div>
+            <div class="row">
+              <div class="col-sm">Females:</div>
+              <div class="col-sm">${females.length}</div>
+            </div>
+          </div>
+        </div>
+      </nav>
+      <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 justify-content-center">
+        <div class="row mt-sm-5">
+          <div class="col-sm">
+            <div class="card">
+              <div class="card-header">
+                <h4>Target</h4>
+              </div>
+
+              <form class="card-body" submit.trigger="startClicked()">
+                <!-- locus row -->
+                <div class="row form-group justify-content-center">
+                  <div class="locus small" repeat.for="gene of target.genes[0]" click.trigger="geneClicked(gene)">
+                    <i class="unselectable">${gene.symbol}<sup>${gene.mutants[gene.active].mutation}</sup></i>
+                  </div>
+                </div>
+
+                <div class="row form-group justify-content-center">
+                  <div class="locus small" repeat.for="gene of target.genes[1]" click.trigger="geneClicked(gene)">
+                    <i class="unselectable">${gene.symbol}<sup>${gene.mutants[gene.active].mutation}</sup></i>
+                  </div>
+                </div>
+
+                <div class="row form-group justify-content-center">
+                  <div class="col-sm-1">Gender</div>
+                  <div class="col-sm-1">
+                    <select class="form-control" value.bind="target.gender"
+                      change.delegate="targetGenderChanged(target.gender)" disabled.bind="isRunning">
+                      <option repeat.for="gender of genders" model.bind="gender.id">${gender.name}</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row justify-content-center">
+                  <div class="col-sm-1">
+                    <button class="btn btn-primary btn-block" disabled.bind="!canStart">Start</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-sm-5">
+          <div class="col-sm">
+            <div class="card">
+              <div class="card-header">
+                <h4>Best Candidate</h4>
+              </div>
+
+              <div class="card-body">
+                <div class="row form-group justify-content-center">
+                  <div class="locus small" repeat.for="gene of fittest[0]">
+                    <i class="unselectable">${gene.symbol}<sup>${gene.mutation}</sup></i>
+                  </div>
+                </div>
+
+                <div class="row form-group justify-content-center">
+                  <div class="locus small" repeat.for="gene of fittest[1]">
+                    <i class="unselectable">${gene.symbol}<sup>${gene.mutation}</sup></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-sm-5">
+          <div class="col-sm-12">
+            <div class="card">
+              <div class="card-header">
+                <h4>Graph</h4>
+              </div>
+              <div class="card-body">
+                <div ref="cytoscapeCanvas" id="cy" style="width:100%;height:100%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+</template>
