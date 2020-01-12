@@ -1,0 +1,43 @@
+{
+  extends: [
+    'config:base',
+    'config:semverAllMonthly',
+    ':combinePatchMinorReleases',
+    ':enableRenovate',
+    ':enableVulnerabilityAlerts',
+    ':semanticCommits',
+    ':semanticPrefixChore'
+  ],
+  commitBodyTable: true,
+  node: {
+    supportPolicy: ['lts']
+  },
+  rollbackPrs: true,
+  travis: { enabled: true },
+  packageRules: [
+    {
+      updateTypes: ['major'],
+      labels: ['dependencies', 'major']
+    },
+    {
+      updateTypes: ['minor', 'patch'],
+      labels: ['dependencies']
+    },
+    {
+      depTypeList: ['dependencies'],
+      semanticCommitScope: 'deps'
+    },
+    {
+      depTypeList: ['devDependencies'],
+      semanticCommitScope: 'dev-deps'
+    },
+    {
+      depTypeList: ['engines'],
+      semanticCommitScope: 'engine-deps'
+    },
+    {
+      depTypeList: ['peerDependencies'],
+      semanticCommitScope: 'peer-deps'
+    }
+  ]
+}
