@@ -13,7 +13,6 @@
     supportPolicy: ['lts']
   },
   rollbackPrs: true,
-  travis: { enabled: true },
   packageRules: [
     {
       updateTypes: ['major'],
